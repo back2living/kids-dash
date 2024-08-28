@@ -643,3 +643,8 @@ export const NavbarArrowLeftIcon = <svg xmlns="http://www.w3.org/2000/svg" width
     <path d="M20.4999 12H3.66992" stroke="#A1A1A1" stroke-width="3" stroke-miterlimit="10" stroke-linecap="round"
           stroke-linejoin="round"/>
 </svg>
+export const ChecklistMenuIcon = <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <path d="M3 7H21" stroke="#374151" strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M3 12H21" stroke="#374151" strokeWidth="1.5" strokeLinecap="round"/>
+    <path d="M3 17H21" stroke="#374151" strokeWidth="1.5" strokeLinecap="round"/>
+</svg>

@@ -13,6 +13,19 @@ import UserProfile from "@/components/shared/Navbar/UserProfile";
 import LogoutModal from "@/components/shared/LogoutModal";
 import FormModal from "@/components/shared/FormModal";
 
+export const mobileVariants = {
+    initial: {
+        opacity: 0,
+        transition: {},
+        left: "-100px",
+    },
+    final: {
+        opacity: 1,
+        transition: {},
+        left: "0px",
+    }
+}
+
 export type NavbarProp = {
     title: string;
     setShowNotifications: Dispatch<SetStateAction<boolean>>;
@@ -39,18 +52,6 @@ const MobileNavbar = ({title, setShowNotifications}: NavbarProp) => {
         }
     }, [isOpen]);
 
-    const mobileVariants = {
-        initial: {
-            opacity: 0,
-            transition: {},
-            left: "-100px",
-        },
-        final: {
-            opacity: 1,
-            transition: {},
-            left: "0px",
-        }
-    }
     const handleGoToPreviousPage = () => router.back();
 
     const showArrowIcon = (title === "User Level" || title === "Rate Alert" || title === "Get Mobile Apps" || title === "Referrals");
@@ -97,7 +98,7 @@ const MobileNavbar = ({title, setShowNotifications}: NavbarProp) => {
                                             <span
                                                 className={`${link.path === pathname && "active-icon"}`}>{link.icon}</span>
                                             <span
-                                                className={cn("text-secondary font-semibold uppercase", link.path === pathname && "text-orange")}>{link.name}</span>
+                                                className={cn("text-secondary font-semibold uppercase", link.path === pathname && "text-purple")}>{link.name}</span>
                                         </Link>)}
                                         {sidebarLinks.slice(1, 2).map((link) => <Link href={link.path}
                                                                                       key={link.name}
@@ -108,7 +109,7 @@ const MobileNavbar = ({title, setShowNotifications}: NavbarProp) => {
                                             <span
                                                 className={`${(link.path === pathname || isActive) && "active-icon"}`}>{link.icon}</span>
                                             <span
-                                                className={cn("text-secondary font-semibold uppercase", (link.path === pathname || isActive) && "text-orange")}>{link.name}</span>
+                                                className={cn("text-secondary font-semibold uppercase", (link.path === pathname || isActive) && "text-purple")}>{link.name}</span>
                                         </Link>)}
 
                                         {sidebarLinks.slice(2, 6).map((link) => <Link href={link.path}
@@ -120,7 +121,7 @@ const MobileNavbar = ({title, setShowNotifications}: NavbarProp) => {
                                             <span
                                                 className={`${link.path === pathname && "active-icon"}`}>{link.icon}</span>
                                             <span
-                                                className={cn("text-secondary font-semibold uppercase", link.path === pathname && "text-orange")}>{link.name}</span>
+                                                className={cn("text-secondary font-semibold uppercase", link.path === pathname && "text-purple")}>{link.name}</span>
                                         </Link>)}
 
                                     </div>
