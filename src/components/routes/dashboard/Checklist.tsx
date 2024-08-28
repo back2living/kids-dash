@@ -3,6 +3,7 @@ import ChecklistCategory from "@/components/routes/dashboard/ChecklistCategory";
 import Image from "next/image";
 import {useFetchChecklistsCategories, useSubmitChecklist} from "@/hooks/useChecklists";
 import Loader from "@/components/routes/dashboard/Loader";
+import MobileChecklist from "@/components/routes/dashboard/MobileChecklist";
 
 const Checklist = () => {
     const [newActiveCategory, setNewActiveCategory] = useState<any>({});
@@ -61,30 +62,40 @@ const Checklist = () => {
                             </div>
 
                             <div className={"flex-center gap-5"}>
+                                {!isSubmittingChecklist && !checklist?.hasActiveTask && <button
+                                    disabled={checklist?.hasActiveTask}
+                                    onClick={() => handleSubmitChecklist(checklist, index)}
+                                    className={`text-sm text-orange font-semibold`}>Submit Task</button>
+                                }
+                                {isSubmittingChecklist && !checklist?.hasActiveTask && <button disabled={true} className={`text-sm text-orange font-semibold disabled:cursor-not-allowed ${selectedIndex === index && "animate-pulse"}`}>Submit</button>}
+                                {checklist?.hasActiveTask && <button disabled={true} className={`text-sm text-primary font-semibold disabled:cursor-not-allowed`}>Submitted</button>}
+
+
                                 <div className={"flex-center gap-2"}>
                                     <p className={"font-semibold text-secondary text-xs flex-center gap-1"}>
                                         <Image width={12} height={12} src="/assets/images/coin.png" alt=""/>
                                         <span>{checklist?.reward}</span>
                                     </p>
-                                    <p className={"font-semibold text-red-600 text-xs"}>
-                                        <span>Penalty: {checklist?.penalty}</span>
+                                    <p className={"font-semibold text-orange text-xs flex-center gap-1"}>
+                                        <Image width={12} height={12} src="/assets/images/penalty-coin.svg" alt=""/>
+                                        <span>- {checklist?.penalty}</span>
                                     </p>
                                 </div>
-
-
-                                {!isSubmittingChecklist && !checklist?.hasActiveTask && <button
-                                    disabled={checklist?.hasActiveTask}
-                                    onClick={() => handleSubmitChecklist(checklist, index)}
-                                    className={`text-sm text-green font-semibold`}>Submit</button>
-                                }
-                                {isSubmittingChecklist && !checklist?.hasActiveTask && <button disabled={true} className={`text-sm text-green font-semibold disabled:cursor-not-allowed ${selectedIndex === index && "animate-pulse"}`}>Submit</button>}
-                                {checklist?.hasActiveTask && <button disabled={true} className={`text-sm text-green font-semibold disabled:cursor-not-allowed`}>Submitted</button>}
                             </div>
 
                         </div>)}
                     </div>
                 </div>
             </div>}
+
+            {/*---------------------------MOBILE------------------------------*/}
+            <div className={"lg:hidden"}>
+                <MobileChecklist
+                    data={data}
+                    handleChangeCategory={handleChangeCategory}
+                    newActiveCategory={newActiveCategory}
+                />
+            </div>
         </>
     );
 };
