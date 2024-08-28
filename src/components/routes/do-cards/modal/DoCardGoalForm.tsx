@@ -1,26 +1,68 @@
-import React, {Dispatch, SetStateAction, useState} from "react";
-import {storeCategoriesData} from "@/constants/data";
-import {EditItemIcon, SelectedCategoryIcon} from "@/components/shared/Svg";
+import {Dispatch, SetStateAction, useState} from "react";
+import {SelectedCategoryIcon} from "@/components/shared/Svg";
+import axios from "axios";
+import {useQuery} from "@tanstack/react-query";
+import {useDebounce} from "@/hooks/useDebounce";
+import Button from "@/components/shared/Button";
+import {useAddDoCard} from "@/hooks/useDocards";
+import {useCurrentUser} from "@/store/auth/authStore";
+import {useRouter} from "next/router";
 
 interface IAddDoCard {
     setShowAddGoalForm: Dispatch<SetStateAction<boolean>>
 }
 
-const DoCardGoalForm = ({setShowAddGoalForm}: IAddDoCard) => {
-    const [selectedCategoryIndex, setSelectedCategoryIndex] = useState<null | number>(null);
-    const [storeFrontItem, setStoreFrontItem] = useState<null | {}>(null);
-    const [file, setFile] = useState<File | null>(null);
-    const [showModal, setShowModal] = useState<boolean>(false);
+interface IPexelImage {
+    photographer: string;
+    src: {
+        original: string;
+        small: string;
+        large: string;
+        landscape: string;
+        portrait: string;
+        medium: string;
+    }
+}
 
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            const selectedImage = e.target.files[0];
-            setFile(selectedImage);
-            // setSelectedImage([...e.target.files]); // If you need to handle multiple files
-        } else {
-            // Handle the case where no files are selected
-            console.log("No files selected.");
-            setFile(null);
+const DoCardGoalForm = ({setShowAddGoalForm}: IAddDoCard) => {
+    const router = useRouter();
+    const currentKid = useCurrentUser();
+
+    const [purpose, setPurpose] = useState("");
+    const [points, setPoints] = useState("");
+    const [query, setQuery] = useState("shoe");
+    const [selectedCategoryIndex, setSelectedCategoryIndex] = useState<null | number>(null);
+    const [selectedImage, setSelectedImage] = useState<null | IPexelImage>(null);
+
+    const debouncedQuery = useDebounce(query, 250);
+    const getPhotos = async () => {
+        const {data} = await axios.get(`https://api.pexels.com/v1/search?query=${debouncedQuery?.toLowerCase()}&per_page=80`, {
+            headers: {
+                Authorization: "nzYGrTDyyXsS0bxfmLiSfWwDa4yZ4NnLKvzIJeItYq5LAhqZjqJrRghF"
+            }
+        });
+        return data?.photos;
+    }
+
+    const {data, isPending} = useQuery({
+        queryKey: ["getPixelPhotos", debouncedQuery],
+        queryFn: getPhotos,
+        enabled: !!debouncedQuery
+    });
+    const isValid = !!(purpose && points && selectedImage);
+
+    const handleRouteToKidProfile = async () => await router.push("/do-cards");
+    const {mutate, isPending: isAddDoCardPending} = useAddDoCard(handleRouteToKidProfile);
+
+    const handleSubmitDoCard = () => {
+        if (currentKid) {
+            mutate({
+                isMandatory: false,
+                type: "goal",
+                points: +points,
+                purpose,
+                avatar: selectedImage?.src?.original
+            });
         }
     }
 
@@ -30,50 +72,59 @@ const DoCardGoalForm = ({setShowAddGoalForm}: IAddDoCard) => {
                 <p className={"text-md font-semibold text-primary"}>Set a new do-card goal</p>
                 <div className={"flex-column gap-6 mt-6"}>
                     <div>
-                        <label className="auth-label">Target Points</label>
-                        <input className={"auth-input"} type="text" placeholder={"Buy a Shoe"}/>
+                        <label className="auth-label">Purpose</label>
+                        <input value={purpose} onChange={e => setPurpose(e.target.value)} className={"auth-input"} type="text" placeholder={"Buy a Shoe"}/>
                     </div>
+                    <div>
+                        <label className="auth-label">Image Keywords</label>
+                        <input
+                            value={query} onChange={e => setQuery(e.target.value)}
+                            className={"auth-input text-xs"}
+                            type="text"
+                        />
+                        <p className={"text-[#00D47E] font-bold text-xs mt-2 border border-dashed p-3 border-[#00D47E]"}>Please use a keyword when searching the images. Examples include Bag, Shoes, Dress, Hat, Computer, Phone, etc</p>
 
+                    </div>
 
                     <div className={"w-full"}>
-                        <label className="auth-label">Choose Category</label>
-                        <div className={"rounded-3xl bg-primary p-1 flex-center overflow-x-auto gap-2"}>
-                            {storeCategoriesData?.map(((item, index) => <div onClick={() => {
-                                setStoreFrontItem(item);
-                                setSelectedCategoryIndex(index);
-                            }} key={item.img} className="relative min-w-[150px] h-[120px]">
-                                {selectedCategoryIndex === index &&
-                                    <span className={"absolute top-2 right-2"}>{SelectedCategoryIcon}</span>}
-                                <img className="w-full h-full object-cover" src={item.img} alt={item.category}/>
-                            </div>))}
-                        </div>
-                    </div>
+                        <label className="auth-label">Select Image</label>
+                        {isPending && <div className={"rounded-3xl bg-primary p-1 flex-center overflow-x-auto gap-2"}>
+                            {Array.from({length: 7})?.map(((_, index: number) => {
+                                return <div key={index} className={`relative min-w-[150px] max-w-[200px] bg-gray-300 animate-pulse h-[120px] ${index === 0 && "rounded-l-3xl"}`}/>
+                            }))}
+                        </div>}
 
+                        {!isPending && <div className={"rounded-3xl bg-primary p-1 flex-center overflow-x-auto gap-2"}>
+                            {data?.map(((item: any, index: number, array: []) => {
+                                const lastItemIndex = array?.length - 1;
+                                const lastItem = lastItemIndex === index;
+                                return <div onClick={() => {
+                                    setSelectedImage(item);
+                                    setSelectedCategoryIndex(index);
+                                }} key={item.img} className="relative min-w-[150px] max-w-[200px] h-[120px]">
+                                    {selectedCategoryIndex === index &&
+                                        <span className={"absolute top-2 right-2"}>{SelectedCategoryIcon}</span>}
+                                    <img
+                                        className={`w-full h-full object-cover ${index === 0 ? "rounded-l-3xl" : lastItem ? "rounded-r-3xl" : ""}`}
+                                        src={item.src?.medium} alt={item.alt}/>
+                                </div>
+                            }))}
+                        </div>}
+                    </div>
                     <div>
                         <label className="auth-label">Target Points</label>
-                        <input className={"auth-input"} type="text" placeholder={"😊 e.g sweep the floor"}/>
+                        <input
+                            value={points}
+                            onChange={e => setPoints(e.target.value)}
+                            className={"auth-input"}
+                            type="text"
+                            placeholder={"e.g 100"}
+                        />
                     </div>
-
-                    <div>
-                        <label className="auth-label">Add a picture <span className={"text-[#B1B1B1]"}>(Optional)</span></label>
-                        <label htmlFor="images" className={"bg-primary block p-4 rounded-2xl border border-dashed h-[152px]"}>
-                            {file &&
-                                <div className={"w-[150px] h-[120px] bg-[#f5f5f5] relative flex-center justify-center rounded-3xl"}>
-                                    <label htmlFor="images" className={"edit-icon"}>
-                                        <span onClick={() => setShowModal(true)}>{EditItemIcon}</span>
-                                        <input accept=".jpeg, .jpg, .png" multiple onChange={(e) => handleImageUpload(e)} id={"images"} type="file" hidden/>
-                                    </label>
-                                    <img src={URL.createObjectURL(file)} alt="goal-image" className="w-full h-full object-cover rounded-[20px]"/>
-                                </div>}
-
-                            <input accept=".jpeg, .jpg, .png" multiple onChange={(e) => handleImageUpload(e)} id={"images"} type="file" hidden/>
-                        </label>
-                    </div>
-
                 </div>
                 <div className={"flex gap-6 mt-10"}>
                     <button onClick={() => setShowAddGoalForm(false)} className={"white-btn"}>Cancel</button>
-                    <button className={"primary-btn"}>Create do-card goal</button>
+                    <Button isValid={isValid} isLoading={isAddDoCardPending} handleClick={handleSubmitDoCard} name={"Create do-card goal"} />
                 </div>
             </div>
         </div>
