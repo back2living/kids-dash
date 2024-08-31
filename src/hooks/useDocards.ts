@@ -11,10 +11,10 @@ import {
 } from "@/api/storefront.api";
 import toast from "react-hot-toast";
 
-export const useFetchKidDoCards = (status: string, type: string, isMandatory?: boolean) => {
+export const useFetchKidDoCards = (status: string, type: string, isMandatory?: boolean, pageNum?: number) => {
     return useQuery({
-        queryKey: ["allDoCards", status, type, isMandatory],
-        queryFn: () => fetchDoCards(status, type, isMandatory)
+        queryKey: ["allDoCards", status, type, isMandatory, pageNum],
+        queryFn: () => fetchDoCards(status, type, isMandatory, pageNum)
     });
 }
 export const useAddDoCardPayment = (closeModal: () => void) => {
@@ -40,33 +40,6 @@ export const useAddDoCard = (handleRouteToKidProfile: () => void) => {
             handleRouteToKidProfile();
             await queryClient.invalidateQueries({ queryKey: ["allDoCards"] });
             toast.success(data?.message);
-        },
-        onError: (error: any) =>  toast.error(error?.response?.data?.message)
-    })
-}
-
-export const useUpdateDoCard = (closeModal: () => void) => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: ({doCardId, points, type, purpose, isMandatory}: IUpdateStorefrontDoCard) => updateDoCard({isMandatory, purpose, type, points, doCardId}),
-        onSuccess: async (data, variables) => {
-            await queryClient.invalidateQueries({ queryKey: ["allDoCards"] });
-            toast.success("Category added successfully.");
-            closeModal();
-        },
-        onError: (error: any) =>  toast.error(error?.response?.data?.message)
-    })
-}
-export const useDeleteDoCard = (closeModal: () => void) => {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: ({doCardId}: { doCardId: string }) => deleteDoCard({doCardId}),
-        onSuccess: async (data, variables) => {
-            await queryClient.invalidateQueries({ queryKey: ["allDoCards"] });
-            toast.success("Category added successfully.");
-            closeModal();
         },
         onError: (error: any) =>  toast.error(error?.response?.data?.message)
     })

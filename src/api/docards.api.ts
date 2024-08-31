@@ -18,8 +18,8 @@ export interface IDoCardPayment {
     isMandatory?: boolean;
 }
 
-export const fetchDoCards = async (status: string, type="", isMandatory?: boolean) => {
-    const {data} = await instance.get(`${baseUrl}/docards?status=${status}&type=${type}&isMandatory=${isMandatory}`);
+export const fetchDoCards = async (status: string, type="", isMandatory?: boolean, pageNum?: number) => {
+    const {data} = await instance.get(`${baseUrl}/docards?status=${status}&type=${type}&isMandatory=${isMandatory}&size=20&page=${pageNum}`);
     return data;
 }
 export const addDoCard = async ({storefrontItemId, purpose, points, isMandatory, type, avatar}: IAddDoCard) => {

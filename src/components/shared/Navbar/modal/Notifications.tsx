@@ -4,6 +4,7 @@ import {cn} from "@/lib/utils";
 import {useDeleteNotification, useFetchNotifications, useReadNotification} from "@/hooks/useNotifications";
 import {useState} from "react";
 import {motion} from "framer-motion";
+import {format} from "date-fns";
 
 const Loader = () => {
     return (
@@ -67,7 +68,7 @@ const Notifications = ({closeModal}: { closeModal: () => void }) => {
                             <div className={"text-secondary font-normal flex-column gap-1"}>
                                 <p className={"text-primary font-semibold"}>{notification?.heading}</p>
                                 <p className={"text-sm"}>{notification?.message}</p>
-                                <p>2h</p>
+                                <p className={"text-xs"}>{format(notification?.createdAt, "PPPP")}</p>
                             </div>
                             {!notification?.read && <span className={"absolute top-3 right-3"}>{RedDotIcon}</span>}
                         </motion.div>

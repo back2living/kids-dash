@@ -12,8 +12,3 @@ export const deleteNotifications = async (id: string) => {
     const {data} = await instance.delete(`${baseUrl}/notifications?notificationIds=${id}`);
     return data;
 }
-export const fetchUserNotifications = async ({pageParam}: any) => {
-    const {data} = await instance.get(`${baseUrl}/notifications?currentPage=${pageParam}&limit=100`);
-    // const {data} = await instance.get(`${baseUrl}/notifications?page=${pageParam}&size=100`);
-    return data;
-}

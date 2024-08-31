@@ -8,11 +8,11 @@ interface IModal {
     closeModal: () => void;
 }
 const CompletedModal = ({doCard, closeModal}: IModal) => {
-    const purpose = doCard?.purpose?.length > 30 && doCard?.purpose?.substring(0,26);
+    const purpose = doCard?.purpose?.length > 30 ? `${doCard?.purpose?.substring(0,26)}...` : doCard?.purpose;
 
     return (
         <div>
-            <ModalTop title={`${purpose}...`} Icon={CircleCloseIcon} closeModal={closeModal}/>
+            <ModalTop title={`${purpose}`} Icon={CircleCloseIcon} closeModal={closeModal}/>
 
             <div className={"px-6"}>
                 <div>
