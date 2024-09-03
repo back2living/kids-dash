@@ -3,8 +3,8 @@ import { persist, PersistOptions } from "zustand/middleware";
 import {UserType} from "@/interfaces/UserInterface";
 
 interface AuthState {
-    currentUser: null | UserType; // Adjust the type to match your user object
-    setCurrentUser: (user: UserType) => void; // Adjust the parameter type as needed
+    currentUser: null | UserType;
+    setCurrentUser: (user: UserType) => void;
 }
 
 type AuthPersist = (
